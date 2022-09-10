@@ -7,8 +7,8 @@ import numpy as np
 from datetime import datetime
 
 
-username = "ankurk017"
-password = "Jelly0311"
+username = "username"
+password = "password"
 
 
 def get_dataset(opendap_url):
