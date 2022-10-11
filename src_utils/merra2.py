@@ -4,6 +4,10 @@ from pydap.client import open_url
 import xarray as xr
 import numpy as np
 
+def get_fourcastnet_grids():
+	fourcastnet_lat = np.linspace(-90, 90, 720)
+	fourcastnet_lon = np.linspace(-180, 180, 1440)
+	return fourcastnet_lat, fourcastnet_lon
 
 def get_dataset(opendap_url, sessions, variables=None):
     opendap_data = open_url(opendap_url, session=sessions)
@@ -18,7 +22,8 @@ def update_levels(list_of_vars):
     return list_of_vars_updated
 
 
-def get_merra_urls(dtime):
+def get_merra_urls(timestamp):
+    dtime = datetime.strptime(timestamp, "%Y%m%d")
     url_prefix1 = "https://goldsmr4.gesdisc.eosdis.nasa.gov/opendap/MERRA2/"
     url_prefix2 = "https://goldsmr5.gesdisc.eosdis.nasa.gov/opendap/MERRA2/"
 
@@ -75,13 +80,13 @@ def extract_vars_from_url(session, surface_url, UV_url, H_url, TCWV_url):
 
 
 def interp_variables(
-    fourcastnet_lon,
-    fourcastnet_lat,
     sfc_dataset,
     UVTRH_dataset,
     H_dataset,
     TCWV_dataset,
 ):
+    fourcastnet_lat, fourcastnet_lon = get_fourcastnet_grids()
+
     print("Interpolating variables ...")
     # Surface | U10, V10, T2m, sp, mslp
     u10m = (
@@ -189,7 +194,7 @@ def interp_variables(
     return variables
 
 
-def var_to_h5(variables, output_filename="dummy.nc"):
+def var_to_h5(variables, output_filename="dummy.h5"):
     fourcastnet_variables = update_levels(variables)
     fourcastnet_input = xr.concat((fourcastnet_variables), dim="lev")
 
